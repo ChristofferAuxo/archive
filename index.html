@@ -46,27 +46,60 @@
       font-variant-numeric: tabular-nums;
     }
 
+    /* SVG KOGEPLADE KNAP */
     .counter-button {
-      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 92px;
+      height: 92px;
+      padding: 8px;
       background: #99765a;
       color: #fff;
       border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
+      border-radius: 12px;
       cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
+      transition:
+        background 0.2s,
+        transform 0.2s,
+        box-shadow 0.2s;
     }
 
     .counter-button:hover:not(:disabled) {
       background: #785a43;
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .counter-button:active:not(:disabled) {
+      transform: scale(0.94);
+    }
+
+    .counter-button:focus-visible {
+      outline: 3px solid #99765a;
+      outline-offset: 4px;
     }
 
     .counter-button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
       transform: none;
+    }
+
+    .counter-button svg {
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Lys i kogezonerne ved klik */
+    .counter-button .burner {
+      transition: stroke 0.2s, filter 0.2s;
+    }
+
+    .counter-button.is-clicked .burner {
+      stroke: #ff914d;
+      filter: drop-shadow(0 0 4px #ff914d);
     }
 
     .counter-note {
@@ -92,6 +125,13 @@
       .counter-box {
         width: 100%;
         box-sizing: border-box;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .counter-button,
+      .counter-button .burner {
+        transition: none;
       }
     }
   </style>
@@ -157,13 +197,85 @@
                 </span>
               </div>
 
+              <!-- KLIK-BAR SVG KOGEPLADE -->
               <button
                 id="counter-button"
                 class="counter-button"
                 type="button"
+                aria-label="Tilføj én kogeplade"
+                title="Tilføj én kogeplade"
                 disabled
               >
-                +1 Kodeplade
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 100 100"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <!-- Sort glasplade -->
+                  <rect
+                    x="9"
+                    y="7"
+                    width="82"
+                    height="86"
+                    rx="12"
+                    fill="#242424"
+                    stroke="#ededed"
+                    stroke-width="2"
+                  />
+
+                  <!-- Øverste venstre kogezone -->
+                  <circle
+                    class="burner"
+                    cx="32"
+                    cy="32"
+                    r="14"
+                    fill="none"
+                    stroke="#dedede"
+                    stroke-width="2.5"
+                  />
+
+                  <!-- Øverste højre kogezone -->
+                  <circle
+                    class="burner"
+                    cx="68"
+                    cy="32"
+                    r="14"
+                    fill="none"
+                    stroke="#dedede"
+                    stroke-width="2.5"
+                  />
+
+                  <!-- Nederste venstre kogezone -->
+                  <circle
+                    class="burner"
+                    cx="32"
+                    cy="65"
+                    r="14"
+                    fill="none"
+                    stroke="#dedede"
+                    stroke-width="2.5"
+                  />
+
+                  <!-- Nederste højre kogezone -->
+                  <circle
+                    class="burner"
+                    cx="68"
+                    cy="65"
+                    r="14"
+                    fill="none"
+                    stroke="#dedede"
+                    stroke-width="2.5"
+                  />
+
+                  <!-- Lille indikatorlampe -->
+                  <circle
+                    cx="50"
+                    cy="83"
+                    r="3"
+                    fill="#f59e55"
+                  />
+                </svg>
               </button>
             </div>
 
@@ -171,7 +283,7 @@
             <div class="counter-box">
               <div class="counter-info">
                 <span class="counter-label">
-                  Samlet antal kodeplader
+                  Samlet antal kogeplader
                 </span>
 
                 <span
@@ -378,12 +490,15 @@
     }
   }
 
-  // Tilføj ét klik
+  // Tilføj én kogeplade
   counterButton.addEventListener("click", async () => {
     if (isIncrementing || isLoading) return;
 
     isIncrementing = true;
     counterButton.disabled = true;
+
+    // Lys kogezonerne op ved klik
+    counterButton.classList.add("is-clicked");
 
     try {
       const data =
@@ -397,6 +512,12 @@
         "Kunne ikke bekræfte klikket. Henter seneste antal.";
     } finally {
       isIncrementing = false;
+
+      // Fjern lyset igen
+      setTimeout(() => {
+        counterButton.classList.remove("is-clicked");
+      }, 350);
+
       await loadCounter();
     }
   });
@@ -407,7 +528,7 @@
   // Synkroniser med andre besøgende
   setInterval(loadCounter, 5000);
 
-  // Synkroniser, når fanen bliver aktiv igen
+  // Synkroniser når fanen bliver aktiv igen
   document.addEventListener(
     "visibilitychange",
     () => {
