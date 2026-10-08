@@ -9,16 +9,24 @@
   <link rel="stylesheet" href="styles.css">
 
   <style>
-    /* Global counter */
+    /* Kogeplade Counter */
+    .counter-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
     .counter-box {
       display: inline-flex;
       align-items: center;
+      justify-content: space-between;
       gap: 18px;
       padding: 14px 18px;
-      margin: 16px 0;
       background: rgba(128, 128, 128, 0.08);
       border: 1px solid rgba(128, 128, 128, 0.2);
       border-radius: 12px;
+      min-width: 180px;
     }
 
     .counter-info {
@@ -50,7 +58,7 @@
       transition: background 0.2s, transform 0.2s;
     }
 
-    .counter-button:hover {
+    .counter-button:hover:not(:disabled) {
       background: #785a43;
       transform: translateY(-2px);
     }
@@ -61,10 +69,29 @@
       transform: none;
     }
 
+    .counter-note {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
+    .counter-status {
+      font-size: 12px;
+      margin: 0 0 16px;
+    }
+
+    .counter-status:empty {
+      display: none;
+    }
+
     @media (max-width: 600px) {
+      .counter-wrapper {
+        flex-direction: column;
+      }
+
       .counter-box {
         width: 100%;
-        justify-content: space-between;
+        box-sizing: border-box;
       }
     }
   </style>
@@ -107,32 +134,68 @@
 
           <h2>Kogeplade Counter</h2>
 
-          <!-- GLOBAL COUNTER -->
-          <div class="counter-box">
-            <div class="counter-info">
-              <span class="counter-label">
-                Antal klik
-              </span>
+          <!-- KOGEPLADE COUNTER START -->
+          <div class="counter-wrapper">
 
-              <span
-                id="counter-value"
-                class="counter-value"
-                aria-live="polite"
+            <!-- DAGENS KLIK -->
+            <div class="counter-box">
+              <div class="counter-info">
+                <span class="counter-label">
+                  Dagens klik
+                </span>
+
+                <span
+                  id="daily-counter"
+                  class="counter-value"
+                  aria-live="polite"
+                >
+                  ...
+                </span>
+
+                <span class="counter-note">
+                  Nulstilles kl. 00:00
+                </span>
+              </div>
+
+              <button
+                id="counter-button"
+                class="counter-button"
+                type="button"
+                disabled
               >
-                ...
-              </span>
+                +1 Klik
+              </button>
             </div>
 
-            <button
-              id="counter-button"
-              class="counter-button"
-              type="button"
-              disabled
-            >
-              +1 Klik
-            </button>
+            <!-- SAMLET ANTAL -->
+            <div class="counter-box">
+              <div class="counter-info">
+                <span class="counter-label">
+                  Samlet antal klik
+                </span>
+
+                <span
+                  id="total-counter"
+                  class="counter-value"
+                  aria-live="polite"
+                >
+                  ...
+                </span>
+
+                <span class="counter-note">
+                  Nulstilles aldrig
+                </span>
+              </div>
+            </div>
+
           </div>
-          <!-- GLOBAL COUNTER SLUT -->
+
+          <p
+            id="counter-status"
+            class="counter-status"
+            role="status"
+          ></p>
+          <!-- KOGEPLADE COUNTER SLUT -->
 
           <p class="lead">
             Et simpelt, statisk arkiv hvor hver note
@@ -232,14 +295,22 @@
   const SUPABASE_KEY =
     "sb_publishable_uDwvr3PR6-Qr-7dlWjkw9A_5OAn94-A";
 
-  const counterValue =
-    document.getElementById("counter-value");
+  const dailyCounter =
+    document.getElementById("daily-counter");
+
+  const totalCounter =
+    document.getElementById("total-counter");
 
   const counterButton =
     document.getElementById("counter-button");
 
-  let isIncrementing = false;
+  const counterStatus =
+    document.getElementById("counter-status");
 
+  let isIncrementing = false;
+  let isLoading = false;
+
+  // Kommuniker med Supabase
   async function callCounter(functionName) {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/rpc/${functionName}`,
@@ -249,61 +320,102 @@
           "apikey": SUPABASE_KEY,
           "Content-Type": "application/json"
         },
-        body: "{}"
+        body: "{}",
+        cache: "no-store"
       }
     );
 
     if (!response.ok) {
-      throw new Error("Counter request failed");
+      throw new Error(
+        `Supabase fejl: ${response.status} - ${await response.text()}`
+      );
     }
 
     return response.json();
   }
 
+  // Opdater begge tællere
+  function updateDisplay(data) {
+    if (
+      !data ||
+      data.daily === undefined ||
+      data.total === undefined
+    ) {
+      throw new Error("Ugyldigt svar fra Supabase");
+    }
+
+    dailyCounter.textContent =
+      Number(data.daily).toLocaleString("da-DK");
+
+    totalCounter.textContent =
+      Number(data.total).toLocaleString("da-DK");
+
+    counterStatus.textContent = "";
+  }
+
+  // Hent seneste antal klik
   async function loadCounter() {
-    if (isIncrementing) return;
+    if (isIncrementing || isLoading) return;
+
+    isLoading = true;
 
     try {
-      const value =
-        await callCounter("get_counter");
+      const data = await callCounter("get_counter");
 
       if (!isIncrementing) {
-        counterValue.textContent = value;
+        updateDisplay(data);
         counterButton.disabled = false;
       }
     } catch (error) {
-      console.error(error);
-      counterValue.textContent = "Fejl";
+      console.error("Kunne ikke hente counter:", error);
+
+      counterStatus.textContent =
+        "Kunne ikke hente antal klik. Prøv at genindlæse siden.";
+
+      counterButton.disabled = true;
+    } finally {
+      isLoading = false;
     }
   }
 
-  counterButton.addEventListener(
-    "click",
-    async function () {
-      if (isIncrementing) return;
+  // Tilføj ét klik
+  counterButton.addEventListener("click", async () => {
+    if (isIncrementing || isLoading) return;
 
-      isIncrementing = true;
-      counterButton.disabled = true;
+    isIncrementing = true;
+    counterButton.disabled = true;
 
-      try {
-        const value =
-          await callCounter("increment_counter");
+    try {
+      const data =
+        await callCounter("increment_counter");
 
-        counterValue.textContent = value;
-      } catch (error) {
-        console.error(error);
-        counterValue.textContent = "Fejl";
-      } finally {
-        isIncrementing = false;
-        counterButton.disabled = false;
-      }
+      updateDisplay(data);
+    } catch (error) {
+      console.error("Kunne ikke registrere klik:", error);
+
+      counterStatus.textContent =
+        "Kunne ikke bekræfte klikket. Henter seneste antal.";
+    } finally {
+      isIncrementing = false;
+      await loadCounter();
     }
-  );
+  });
 
+  // Første indlæsning
   loadCounter();
 
   // Synkroniser med andre besøgende
   setInterval(loadCounter, 5000);
+
+  // Synkroniser, når fanen bliver aktiv igen
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (!document.hidden) {
+        loadCounter();
+      }
+    }
+  );
 </script>
 
 </body>
