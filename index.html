@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="da">
 <head>
@@ -6,13 +7,79 @@
   <meta name="description" content="Personligt note- og dokumentarkiv for Christoffer Auxo.">
   <title>Christoffer Auxo — Notearkiv</title>
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* Global counter */
+    .counter-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      background: rgba(128, 128, 128, 0.08);
+      border: 1px solid rgba(128, 128, 128, 0.2);
+      border-radius: 12px;
+    }
+
+    .counter-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .counter-label {
+      font-size: 12px;
+      opacity: 0.65;
+    }
+
+    .counter-value {
+      font-size: 28px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .counter-button {
+      padding: 12px 18px;
+      background: #99765a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .counter-button:hover {
+      background: #785a43;
+      transform: translateY(-2px);
+    }
+
+    .counter-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @media (max-width: 600px) {
+      .counter-box {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
 </head>
+
 <body>
 <div class="layout">
+
   <aside class="sidebar">
-    <a class="brand" href="index.html">Christoffer <span>Auxo</span></a>
+    <a class="brand" href="index.html">
+      Christoffer <span>Auxo</span>
+    </a>
 
     <div class="sidebar-label">Arkiv</div>
+
     <nav class="nav">
       <a class="active" href="index.html">Alle noter</a>
       <a href="/archive/seo-noter.html">SEO</a>
@@ -22,6 +89,7 @@
     </nav>
 
     <div class="sidebar-label">Genveje</div>
+
     <nav class="nav">
       <a href="#seneste">Seneste noter</a>
       <a href="#saadan-tilfoejer-du">Tilføj ny note</a>
@@ -30,53 +98,211 @@
 
   <main class="main">
     <div class="container">
+
       <div class="topbar">
         <div>
           <p class="eyebrow">Personligt arkiv</p>
+
           <h1>Noter & dokumenter</h1>
-          <p class="lead">Et simpelt, statisk arkiv hvor hver note har sin egen HTML-side, og hvor du kan navigere frem og tilbage mellem emnerne.</p>
+
+          <!-- GLOBAL COUNTER -->
+          <div class="counter-box">
+            <div class="counter-info">
+              <span class="counter-label">
+                Antal klik
+              </span>
+
+              <span
+                id="counter-value"
+                class="counter-value"
+                aria-live="polite"
+              >
+                ...
+              </span>
+            </div>
+
+            <button
+              id="counter-button"
+              class="counter-button"
+              type="button"
+              disabled
+            >
+              +1 Klik
+            </button>
+          </div>
+          <!-- GLOBAL COUNTER SLUT -->
+
+          <p class="lead">
+            Et simpelt, statisk arkiv hvor hver note
+            har sin egen HTML-side, og hvor du kan
+            navigere frem og tilbage mellem emnerne.
+          </p>
         </div>
-        <input class="search" type="search" placeholder="Søgning kan tilføjes senere" disabled>
+
+        <input
+          class="search"
+          type="search"
+          placeholder="Søgning kan tilføjes senere"
+          disabled
+        >
       </div>
 
       <section id="seneste">
         <div class="grid">
+
           <a class="card" href="seo-noter.html">
             <span class="tag">SEO</span>
             <h2>SEO-noter</h2>
-            <p>Keyword research, teknisk SEO, structured data, interne links og løbende observationer.</p>
-            <span class="date">Senest opdateret: 10. august 2026</span>
+            <p>
+              Keyword research, teknisk SEO,
+              structured data, interne links
+              og løbende observationer.
+            </p>
+            <span class="date">
+              Senest opdateret: 10. august 2026
+            </span>
           </a>
 
           <a class="card" href="google-ads.html">
             <span class="tag">Google Ads</span>
             <h2>Google Ads</h2>
-            <p>Kampagnestruktur, Shopping, PMax, ProfitMetrics og performance-noter.</p>
-            <span class="date">Senest opdateret: 10. august 2026</span>
+            <p>
+              Kampagnestruktur, Shopping, PMax,
+              ProfitMetrics og performance-noter.
+            </p>
+            <span class="date">
+              Senest opdateret: 10. august 2026
+            </span>
           </a>
 
           <a class="card" href="tracking.html">
             <span class="tag">Tracking</span>
             <h2>Tracking & analytics</h2>
-            <p>GTM, GA4, dataLayer, Klaviyo-events, Looker Studio og konverteringsmåling.</p>
-            <span class="date">Senest opdateret: 10. august 2026</span>
+            <p>
+              GTM, GA4, dataLayer, Klaviyo-events,
+              Looker Studio og konverteringsmåling.
+            </p>
+            <span class="date">
+              Senest opdateret: 10. august 2026
+            </span>
           </a>
 
           <a class="card" href="teknik.html">
             <span class="tag">Teknik</span>
             <h2>Tekniske noter</h2>
-            <p>WordPress, scripts, DNS, redirects, HTML/CSS og andre tekniske løsninger.</p>
-            <span class="date">Senest opdateret: 10. august 2026</span>
+            <p>
+              WordPress, scripts, DNS, redirects,
+              HTML/CSS og andre tekniske løsninger.
+            </p>
+            <span class="date">
+              Senest opdateret: 10. august 2026
+            </span>
           </a>
+
         </div>
       </section>
 
-      <section class="help-box" id="saadan-tilfoejer-du">
+      <section
+        class="help-box"
+        id="saadan-tilfoejer-du"
+      >
         <h3>Sådan tilføjer du en ny note</h3>
-        <p>Kopiér en eksisterende fil i <code>/</code>, omdøb den, ændr titel og indhold, og tilføj et nyt kort her på forsiden. Nederst på hver note kan du ændre “Forrige” og “Næste”, så du kan bladre mellem dokumenterne.</p>
+
+        <p>
+          Kopiér en eksisterende fil i
+          <code>/</code>, omdøb den, ændr titel
+          og indhold, og tilføj et nyt kort
+          her på forsiden. Nederst på hver note
+          kan du ændre “Forrige” og “Næste”,
+          så du kan bladre mellem dokumenterne.
+        </p>
       </section>
+
     </div>
   </main>
 </div>
+
+<!-- SUPABASE COUNTER SCRIPT -->
+<script>
+  const SUPABASE_URL =
+    "https://DIT-PROJEKT.supabase.co";
+
+  const SUPABASE_KEY =
+    "DIN_PUBLISHABLE_KEY";
+
+  const counterValue =
+    document.getElementById("counter-value");
+
+  const counterButton =
+    document.getElementById("counter-button");
+
+  let isIncrementing = false;
+
+  async function callCounter(functionName) {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/${functionName}`,
+      {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Content-Type": "application/json"
+        },
+        body: "{}"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Counter request failed");
+    }
+
+    return response.json();
+  }
+
+  async function loadCounter() {
+    if (isIncrementing) return;
+
+    try {
+      const value =
+        await callCounter("get_counter");
+
+      if (!isIncrementing) {
+        counterValue.textContent = value;
+        counterButton.disabled = false;
+      }
+    } catch (error) {
+      console.error(error);
+      counterValue.textContent = "Fejl";
+    }
+  }
+
+  counterButton.addEventListener(
+    "click",
+    async function () {
+      if (isIncrementing) return;
+
+      isIncrementing = true;
+      counterButton.disabled = true;
+
+      try {
+        const value =
+          await callCounter("increment_counter");
+
+        counterValue.textContent = value;
+      } catch (error) {
+        console.error(error);
+        counterValue.textContent = "Fejl";
+      } finally {
+        isIncrementing = false;
+        counterButton.disabled = false;
+      }
+    }
+  );
+
+  loadCounter();
+
+  // Synkroniser med andre besøgende
+  setInterval(loadCounter, 5000);
+</script>
+
 </body>
 </html>
